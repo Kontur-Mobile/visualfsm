@@ -299,7 +299,7 @@ proceeds incoming `Action`s.
 ### TransitionCallbacks of VisualFSM
 
 `TransitionCallbacks` gives access to method callbacks for third party logic. They are great for
-_logging_, _debugging_, _metrics_, etc. on five available events: when `Action` is launched,
+_logging_, _debugging_, _metrics_, etc. on six available events: when initial `State` is received, when `Action` is launched,
 when `Transition` is selected, a new `State` had been reduced, and two error events —
 no `Transition`s or multiple `Transition`s available.
 

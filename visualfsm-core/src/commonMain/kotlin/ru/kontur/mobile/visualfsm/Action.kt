@@ -8,26 +8,11 @@ abstract class Action<STATE : State> {
 
     private var transitions: List<Transition<out STATE, out STATE>>? = null
 
-    /** This method is needed to use it in the generated code. Do not use it. */
-    fun setTransitions(transitions: List<Transition<out STATE, out STATE>>) {
-        this.transitions = transitions
-    }
-
     /**
-     * Returns instances of all [transitions][Transition] declared inside this [Action]
-     *
-     * @return instances of all [transitions][Transition] declared inside this [Action]
-     */
-    @Deprecated(
-        message = "Deprecated, because now the list of transitions is formed in the generated code (of TransitionsFactory).\n" +
-                "Code generation not configured or configured incorrectly.\n" +
-                "See the quickstart file for more information on set up code generation (https://github.com/Kontur-Mobile/VisualFSM/blob/main/docs/Quickstart.md).",
-    )
-    open fun getTransitions(): List<Transition<out STATE, out STATE>> {
-        return transitions ?: error(
-            "\nCode generation not configured or configured incorrectly.\n" +
-                    "See the quickstart file for more information on set up code generation (https://github.com/Kontur-Mobile/VisualFSM/blob/main/docs/Quickstart.md).\n"
-        )
+     * Prepare action to run
+     * @param transitions list of [transition][Transition] */
+    internal fun setTransitions(transitions: List<Transition<out STATE, out STATE>>) {
+        this.transitions = transitions
     }
 
     /**
@@ -38,34 +23,34 @@ abstract class Action<STATE : State> {
      * @param callbacks [transition callbacks][TransitionCallbacks]
      * @return [new state][State]
      */
-    fun run(oldState: STATE, callbacks: TransitionCallbacks<STATE>?): STATE {
-        callbacks?.onActionLaunched(this, oldState)
+    internal fun run(oldState: STATE, callbacks: TransitionCallbacks<STATE, Action<STATE>>): STATE {
+        callbacks.onActionLaunched(this, oldState)
 
         val availableTransitions = getAvailableTransitions(oldState)
 
         if (availableTransitions.size > 1) {
-            callbacks?.onMultipleTransitionError(this, oldState)
+            callbacks.onMultipleTransitionError(this, oldState, availableTransitions)
         }
 
         val selectedTransition = availableTransitions.firstOrNull()
 
         if (selectedTransition == null) {
-            callbacks?.onNoTransitionError(this, oldState)
+            callbacks.onNoTransitionError(this, oldState)
             return oldState
         }
 
-        callbacks?.onTransitionSelected(this, selectedTransition, oldState)
+        callbacks.onTransitionSelected(this, selectedTransition, oldState)
 
         val newState = selectedTransition.transform(oldState)
 
-        callbacks?.onNewStateReduced(this, selectedTransition, oldState, newState)
+        callbacks.onNewStateReduced(this, selectedTransition, oldState, newState)
 
         return newState
     }
 
-    @Suppress("UNCHECKED_CAST", "DEPRECATION")
+    @Suppress("UNCHECKED_CAST")
     private fun getAvailableTransitions(oldState: STATE): List<Transition<STATE, STATE>> =
-        (getTransitions() as List<Transition<STATE, STATE>>).filter { isCorrectTransition(it, oldState) }
+        (transitions as List<Transition<STATE, STATE>>).filter { isCorrectTransition(it, oldState) }
 
     private fun isCorrectTransition(
         transition: Transition<STATE, STATE>,

@@ -2,11 +2,13 @@ package ru.kontur.mobile.visualfsm.annotation_processor
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import ru.kontur.mobile.visualfsm.*
 import java.io.File
 import java.nio.file.Paths
 import kotlin.reflect.KClass
 
+@OptIn(ExperimentalCompilerApi::class)
 object TestUtil {
 
     fun getVisualFSMSources() = listOf(

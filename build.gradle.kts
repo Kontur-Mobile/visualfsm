@@ -3,13 +3,8 @@ plugins{
     alias(libs.plugins.multiplatform) apply false
     alias(libs.plugins.dokka) apply false
     alias(libs.plugins.kotlin) apply false
+    alias(libs.plugins.atomicfu) apply false
 }
 
 group = "ru.kontur.mobile.visualfsm"
-version = "3.0.0"
-
-buildscript {
-    dependencies{
-        classpath(libs.atomicfu.gradle.plugin)
-    }
-}
+version = "4.0.0"

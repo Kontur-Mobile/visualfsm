@@ -1,18 +1,24 @@
-package ru.kontur.mobile.visualfsm
+package ru.kontur.mobile.visualfsm.transitioncallbacks
+
+import ru.kontur.mobile.visualfsm.Action
+import ru.kontur.mobile.visualfsm.State
+import ru.kontur.mobile.visualfsm.Transition
+import ru.kontur.mobile.visualfsm.TransitionCallbacks
 
 /**
  * Inherit to declare third party logic on provided event calls (like logging, debugging, or metrics)
  */
-interface TransitionCallbacks<STATE : State, ACTION : Action<STATE>> {
+interface DefaultTransitionCallbacks<STATE : State, ACTION : Action<STATE>> : TransitionCallbacks<STATE, ACTION> {
 
     /**
-     * Is called when the [Feature] is initialized
+     * Is called when the [ru.kontur.mobile.visualfsm.Feature] is initialized
      *
      * @param initialState the [state][STATE] with which the Feature is initialized
      */
-    fun onInitialStateReceived(
+    override fun onInitialStateReceived(
         initialState: STATE
-    )
+    ) {
+    }
 
     /**
      * Is called when [Action] is being launched
@@ -20,10 +26,11 @@ interface TransitionCallbacks<STATE : State, ACTION : Action<STATE>> {
      * @param action [Action] that is being launched
      * @param currentState current [state][STATE]
      */
-    fun onActionLaunched(
+    override fun onActionLaunched(
         action: ACTION,
         currentState: STATE
-    )
+    ) {
+    }
 
     /**
      * Is called on transition being selected
@@ -32,11 +39,12 @@ interface TransitionCallbacks<STATE : State, ACTION : Action<STATE>> {
      * @param transition selected [transition][Transition]
      * @param currentState current [state][STATE]
      */
-    fun onTransitionSelected(
+    override fun onTransitionSelected(
         action: ACTION,
         transition: Transition<STATE, STATE>,
         currentState: STATE
-    )
+    ) {
+    }
 
     /**
      * Is called when [new state][State] reduced
@@ -46,12 +54,13 @@ interface TransitionCallbacks<STATE : State, ACTION : Action<STATE>> {
      * @param oldState current [state][STATE]
      * @param newState new [state][State]
      */
-    fun onNewStateReduced(
+    override fun onNewStateReduced(
         action: ACTION,
         transition: Transition<STATE, STATE>,
         oldState: STATE,
         newState: STATE
-    )
+    ) {
+    }
 
     /**
      * Is called when there is no available [transition][Transition]
@@ -59,10 +68,11 @@ interface TransitionCallbacks<STATE : State, ACTION : Action<STATE>> {
      * @param action [Action] that was being launched
      * @param currentState current [state][State]
      */
-    fun onNoTransitionError(
+    override fun onNoTransitionError(
         action: ACTION,
         currentState: STATE,
-    )
+    ) {
+    }
 
     /**
      * Is called when more than one [transition][Transition] is available
@@ -71,9 +81,10 @@ interface TransitionCallbacks<STATE : State, ACTION : Action<STATE>> {
      * @param currentState current [state][State]
      * @param suitableTransitions list of suitable [transitions][Transition]
      */
-    fun onMultipleTransitionError(
+    override fun onMultipleTransitionError(
         action: ACTION,
         currentState: STATE,
         suitableTransitions: List<Transition<STATE, STATE>>
-    )
+    ) {
+    }
 }

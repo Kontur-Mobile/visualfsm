@@ -4,9 +4,11 @@ import annotation_processor.AnnotationProcessorProvider
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.symbolProcessorProviders
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
+@OptIn(ExperimentalCompilerApi::class)
 internal class InvalidGenericParameterAnnotationProcessorTests {
 
     @Test

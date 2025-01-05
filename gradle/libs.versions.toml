@@ -1,17 +1,17 @@
 [versions]
-kotlin = "1.9.22"
-coroutines = "1.8.0"
-rxJava3 = "3.1.8"
-junitJupiter = "5.10.2"
-ksp = "1.9.22-1.0.17"
-kotlinPoet = "1.16.0"
-kotlinCompileTesting = "1.5.0"
-dokka = "1.9.20"
-atomicfu = "0.23.2"
+kotlin = "2.0.21"
+coroutines = "1.9.0"
+rxJava3 = "3.1.10"
+junitJupiter = "5.11.4"
+ksp = "2.0.21-1.0.28"
+kotlinPoet = "2.0.0"
+kotlinCompileTesting = "1.6.0"
+dokka = "2.0.0"
+atomicfu = "0.26.1"
 
 [libraries]
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junitJupiter" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junitJupiter" }
@@ -23,15 +23,13 @@ kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinPoet" }
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinPoet" }
 kotlin-compile-testing = { module = "com.github.tschuchortdev:kotlin-compile-testing", version.ref = "kotlinCompileTesting" }
 kotlin-compile-testing-ksp = { module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version.ref = "kotlinCompileTesting" }
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version = "" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 
 rxJava3 = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxJava3" }
-
-atomicfu-gradle-plugin = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "atomicfu" }
 
 [plugins]
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 dokka = { id = "org.jetbrains.dokka", version.ref  = "dokka" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref  = "kotlin" }
-atomicfu = { id = "kotlinx-atomicfu" }
+atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }

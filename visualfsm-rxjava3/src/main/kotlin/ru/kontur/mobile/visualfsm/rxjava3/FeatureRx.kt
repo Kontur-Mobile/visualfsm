@@ -2,6 +2,8 @@ package ru.kontur.mobile.visualfsm.rxjava3
 
 import io.reactivex.rxjava3.core.Observable
 import ru.kontur.mobile.visualfsm.*
+import ru.kontur.mobile.visualfsm.log.LogParams
+import ru.kontur.mobile.visualfsm.log.LoggerMode
 
 /**
  * Is the facade for FSM. Provides access to subscription on [state][State] changes
@@ -14,21 +16,26 @@ import ru.kontur.mobile.visualfsm.*
  * on provided event calls (like logging, debugging, or metrics) (optional)
  * @param transitionsFactory a function that returns a [TransitionsFactory] instance to create the transition list
  * for the action
+ * @param logParams the internal logger params, by default configured for write only error messages
+ * to [ru.kontur.mobile.visualfsm.log.StdoutLogger]
+ * and format actions and states by [ru.kontur.mobile.visualfsm.log.DefaultVerboseLogFormatter]
  */
 open class FeatureRx<STATE : State, ACTION : Action<STATE>>(
     stateSource: IStateSourceRx<STATE>,
     asyncWorker: AsyncWorkerRx<STATE, ACTION>? = null,
-    transitionCallbacks: TransitionCallbacks<STATE>? = null,
+    transitionCallbacks: List<TransitionCallbacks<STATE, ACTION>> = listOf(),
     transitionsFactory: FeatureRx<STATE, ACTION>.() -> TransitionsFactory<STATE, ACTION>,
+    logParams: LogParams<STATE, ACTION> = LogParams(loggerMode = LoggerMode.ERRORS)
 ) : BaseFeature<STATE, ACTION>() {
 
-    private var transitionsFactory: TransitionsFactory<STATE, ACTION>? = null
+    private val transitionsFactory: TransitionsFactory<STATE, ACTION> = transitionsFactory(this)
 
-    private val store: StoreRx<STATE, ACTION>
+    private val store: StoreRx<STATE, ACTION> = StoreRx(
+        stateSource = stateSource,
+        transitionCallbacks = getTransitionCallbacksAggregator(logParams, transitionCallbacks)
+    )
 
     init {
-        this.transitionsFactory = transitionsFactory(this)
-        store = StoreRx(stateSource, transitionCallbacks)
         asyncWorker?.bind(this)
     }
 
@@ -42,7 +49,7 @@ open class FeatureRx<STATE : State, ACTION : Action<STATE>>(
     constructor(
         initialState: STATE,
         asyncWorker: AsyncWorkerRx<STATE, ACTION>? = null,
-        transitionCallbacks: TransitionCallbacks<STATE>? = null,
+        transitionCallbacks: List<TransitionCallbacks<STATE, ACTION>> = listOf(),
         transitionsFactory: TransitionsFactory<STATE, ACTION>,
     ) : this(RootStateSourceRx(initialState), asyncWorker, transitionCallbacks, { transitionsFactory })
 
@@ -57,7 +64,7 @@ open class FeatureRx<STATE : State, ACTION : Action<STATE>>(
     constructor(
         initialState: STATE,
         asyncWorker: AsyncWorkerRx<STATE, ACTION>? = null,
-        transitionCallbacks: TransitionCallbacks<STATE>? = null,
+        transitionCallbacks: List<TransitionCallbacks<STATE, ACTION>> = listOf(),
         transitionsFactory: FeatureRx<STATE, ACTION>.() -> TransitionsFactory<STATE, ACTION>,
     ) : this(RootStateSourceRx(initialState), asyncWorker, transitionCallbacks, transitionsFactory)
 
@@ -72,7 +79,7 @@ open class FeatureRx<STATE : State, ACTION : Action<STATE>>(
     constructor(
         stateSource: IStateSourceRx<STATE>,
         asyncWorker: AsyncWorkerRx<STATE, ACTION>? = null,
-        transitionCallbacks: TransitionCallbacks<STATE>? = null,
+        transitionCallbacks: List<TransitionCallbacks<STATE, ACTION>> = listOf(),
         transitionsFactory: TransitionsFactory<STATE, ACTION>,
     ) : this(stateSource, asyncWorker, transitionCallbacks, { transitionsFactory })
 
@@ -111,12 +118,7 @@ open class FeatureRx<STATE : State, ACTION : Action<STATE>>(
      */
     override fun proceed(action: ACTION) {
         synchronized(this) {
-            val transitionsFactory = this.transitionsFactory
-            return store.proceed(
-                action.apply {
-                    if (transitionsFactory != null) setTransitions(transitionsFactory.create(action))
-                }
-            )
+            return store.proceed(action, transitionsFactory)
         }
     }
 }
